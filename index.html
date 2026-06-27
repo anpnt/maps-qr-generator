@@ -58,10 +58,27 @@
         button:hover {
             background-color: #3367D6;
         }
+        
+        /* Specific styling for the new Save button */
+        #downloadBtn {
+            background-color: #34A853; /* Google Green */
+            margin-top: 15px;
+            display: none; /* Hidden until QR code is generated */
+        }
+        #downloadBtn:hover {
+            background-color: #2b8c45;
+        }
+
         #qrcode {
             margin-top: 25px;
             display: flex;
             justify-content: center;
+        }
+        
+        /* This keeps the massive high-res QR code at a normal size on the screen */
+        #qrcode canvas {
+            width: 250px !important;
+            height: 250px !important;
         }
     </style>
 </head>
@@ -75,45 +92,67 @@
         <button onclick="generateQR()">Generate QR Code</button>
 
         <div id="qrcode"></div>
+        
+        <button id="downloadBtn" onclick="downloadQR()">Save High-Quality Image</button>
     </div>
 
     <script>
         function generateQR() {
             let mapLink = document.getElementById('linkInput').value.trim();
             const qrcodeContainer = document.getElementById('qrcode');
+            const downloadBtn = document.getElementById('downloadBtn');
             
-            // Clear any previous QR code
+            // Clear any previous QR code and hide the button
             qrcodeContainer.innerHTML = "";
+            downloadBtn.style.display = "none";
 
             if (!mapLink) {
                 alert("Please paste a link first!");
                 return;
             }
 
-            // Ensure the link starts with http/https so phones recognize it as a clickable URL
+            // Ensure the link starts with http/https
             if (!mapLink.startsWith('http://') && !mapLink.startsWith('https://')) {
                 mapLink = 'https://' + mapLink;
             }
 
-            // A base64 encoded red Google Maps Pin SVG icon so we don't have to host an image file
-            const mapIcon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIj48cGF0aCBmaWxsPSIjRUE0MzM1IiBkPSJNMjE1LjcgNDk5LjJDMjY3IDQzNSAzODQgMjc5LjQgMzg0IDE5MkMzODQgODYgMjk4IDAgMTkyIDBTMCA4NiAwIDE5MmMwIDg3LjQgMTE3IDI0MyAxNjguMyAzMDcuMmMxMi4zIDE1LjMgMzUuMSAxNS4zIDQ3LjQgMHpNMTkyIDEyOGE2NCA2NCAwIDEgMSAwIDEyOCA2NCA2NCAwIDEgMSAwLTEyOHoiLz48L3N2Zz4=";
-
             // Configuration for the QR Code
             const options = {
-                text: mapLink, // Directly inserts your exact URL into the QR code
-                width: 250,
-                height: 250,
+                text: mapLink,
+                width: 1024,  // Set to 1024x1024 for maximum download quality
+                height: 1024, 
                 colorDark : "#000000",
                 colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H, // 'H' allows 30% of the QR code to be covered by the logo without breaking
-                logo: mapIcon,       // Adds the Maps icon
-                logoWidth: 60,       // Icon width
-                logoHeight: 80,      // Icon height
-                logoBackgroundTransparent: true // Ensures the icon doesn't have an ugly white box around it
+                correctLevel : QRCode.CorrectLevel.M, // 'M' is standard and cleaner when there is no logo
             };
 
             // Generate the QR code
             new QRCode(qrcodeContainer, options);
+
+            // Show the download button
+            downloadBtn.style.display = "block";
+        }
+
+        function downloadQR() {
+            // Find the canvas element that the library just drew
+            const canvas = document.querySelector('#qrcode canvas');
+            
+            if (canvas) {
+                // Convert the canvas drawing into a PNG image data URL
+                const imageUrl = canvas.toDataURL("image/png");
+                
+                // Create a temporary link element to trigger the download
+                const downloadLink = document.createElement('a');
+                downloadLink.href = imageUrl;
+                downloadLink.download = 'maps-qr-code.png'; // The name of the saved file
+                
+                // Append, click, and remove the link
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            } else {
+                alert("Please generate a QR code first.");
+            }
         }
     </script>
 </body>
