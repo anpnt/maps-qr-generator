@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Maps to QR Code</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Google Maps Link to QR Code</title>
+    <script src="https://unpkg.com/easyqrcodejs@4.6.1/dist/easy.qrcode.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -34,7 +34,7 @@
             font-size: 14px;
             margin-bottom: 20px;
         }
-        input[type="text"] {
+        input[type="url"] {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
@@ -63,19 +63,15 @@
             display: flex;
             justify-content: center;
         }
-        /* Hide the QR container if it's empty */
-        #qrcode:empty {
-            display: none;
-        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Maps to QR Code</h1>
-        <p>Enter an address or landmark to generate a scannable Google Maps link.</p>
+        <h1>Maps Link to QR Code</h1>
+        <p>Paste a Google Maps link to generate a scannable QR code.</p>
         
-        <input type="text" id="locationInput" placeholder="e.g., Eiffel Tower or 123 Main St">
+        <input type="url" id="linkInput" placeholder="e.g., https://maps.app.goo.gl/...">
         <button onclick="generateQR()">Generate QR Code</button>
 
         <div id="qrcode"></div>
@@ -83,30 +79,41 @@
 
     <script>
         function generateQR() {
-            const location = document.getElementById('locationInput').value.trim();
+            let mapLink = document.getElementById('linkInput').value.trim();
             const qrcodeContainer = document.getElementById('qrcode');
             
             // Clear any previous QR code
             qrcodeContainer.innerHTML = "";
 
-            if (!location) {
-                alert("Please enter a location first!");
+            if (!mapLink) {
+                alert("Please paste a link first!");
                 return;
             }
 
-            // Construct the official Google Maps search URL
-            // encodeURIComponent ensures spaces and special characters are handled correctly
-            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+            // Ensure the link starts with http/https so phones recognize it as a clickable URL
+            if (!mapLink.startsWith('http://') && !mapLink.startsWith('https://')) {
+                mapLink = 'https://' + mapLink;
+            }
 
-            // Generate the QR code using the library
-            new QRCode(qrcodeContainer, {
-                text: mapsUrl,
-                width: 200,
-                height: 200,
+            // A base64 encoded red Google Maps Pin SVG icon so we don't have to host an image file
+            const mapIcon = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIj48cGF0aCBmaWxsPSIjRUE0MzM1IiBkPSJNMjE1LjcgNDk5LjJDMjY3IDQzNSAzODQgMjc5LjQgMzg0IDE5MkMzODQgODYgMjk4IDAgMTkyIDBTMCA4NiAwIDE5MmMwIDg3LjQgMTE3IDI0MyAxNjguMyAzMDcuMmMxMi4zIDE1LjMgMzUuMSAxNS4zIDQ3LjQgMHpNMTkyIDEyOGE2NCA2NCAwIDEgMSAwIDEyOCA2NCA2NCAwIDEgMSAwLTEyOHoiLz48L3N2Zz4=";
+
+            // Configuration for the QR Code
+            const options = {
+                text: mapLink, // Directly inserts your exact URL into the QR code
+                width: 250,
+                height: 250,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
+                correctLevel : QRCode.CorrectLevel.H, // 'H' allows 30% of the QR code to be covered by the logo without breaking
+                logo: mapIcon,       // Adds the Maps icon
+                logoWidth: 60,       // Icon width
+                logoHeight: 80,      // Icon height
+                logoBackgroundTransparent: true // Ensures the icon doesn't have an ugly white box around it
+            };
+
+            // Generate the QR code
+            new QRCode(qrcodeContainer, options);
         }
     </script>
 </body>
