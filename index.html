@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Maps to QR Code</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4285F4; /* Google Blue */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3367D6;
+        }
+        #qrcode {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+        }
+        /* Hide the QR container if it's empty */
+        #qrcode:empty {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Maps to QR Code</h1>
+        <p>Enter an address or landmark to generate a scannable Google Maps link.</p>
+        
+        <input type="text" id="locationInput" placeholder="e.g., Eiffel Tower or 123 Main St">
+        <button onclick="generateQR()">Generate QR Code</button>
+
+        <div id="qrcode"></div>
+    </div>
+
+    <script>
+        function generateQR() {
+            const location = document.getElementById('locationInput').value.trim();
+            const qrcodeContainer = document.getElementById('qrcode');
+            
+            // Clear any previous QR code
+            qrcodeContainer.innerHTML = "";
+
+            if (!location) {
+                alert("Please enter a location first!");
+                return;
+            }
+
+            // Construct the official Google Maps search URL
+            // encodeURIComponent ensures spaces and special characters are handled correctly
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+
+            // Generate the QR code using the library
+            new QRCode(qrcodeContainer, {
+                text: mapsUrl,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+    </script>
+</body>
+</html>
