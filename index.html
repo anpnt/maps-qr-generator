@@ -124,6 +124,9 @@
                 colorDark : "#000000",
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.M, // 'M' is standard and cleaner when there is no logo
+                // NEW: Add a quiet zone (white border) around the QR code
+                quietZone: 20, // 20px border
+                quietZoneColor: "#ffffff" // Make the border white
             };
 
             // Generate the QR code
